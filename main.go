@@ -4,12 +4,19 @@ import (
     "goclients/handlers"
     "log"
     "net/http"
-
+    "goclients/db"
     "github.com/gorilla/mux"
 )
 
 func main() {
+    
     r := mux.NewRouter()
+
+    // Init DB
+    database := db.Connect()
+    defer database.Close()
+
+    handlers.InitDB(database)
 
     // Rutas del CRUD
     r.HandleFunc("/clientes", handlers.GetClients).Methods("GET")

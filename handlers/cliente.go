@@ -1,27 +1,29 @@
 package handlers
 
 import (
-    "goclients/db"
     "goclients/models"
     "encoding/json"
     "log"
     "net/http"
     "github.com/gorilla/mux"
 	"strconv"
+    "database/sql"
 )
 
-func GetClients(w http.ResponseWriter, r *http.Request)  {
+var database *sql.DB 
 
-	database := db.Connect()
-	defer database.Close()
+func InitDB(db *sql.DB) {
+    database = db
+}
+
+func GetClients(w http.ResponseWriter, r *http.Request)  {
 
     filas, err := database.Query("SELECT id, nombre, email, telefono FROM clientes")
 	
 	if err != nil {
-		json.NewEncoder(w).Encode(models.APIResponse{
-			Code: http.StatusInternalServerError,
-			Data: "Error al procesar los datos del cliente",
-		})
+
+        response := models.APIResponse{Code: http.StatusOK}
+        response.RespondWithError(w, "Cliente eliminado con éxito")
 		return
 	}	
 
@@ -34,18 +36,13 @@ func GetClients(w http.ResponseWriter, r *http.Request)  {
         clients = append(clients, cliente)
     }
 
-	json.NewEncoder(w).Encode(models.APIResponse{
-        Code: http.StatusOK,
-        Data: clients,
-    })
+    response := models.APIResponse{Code: http.StatusOK, Data: clients}
+    response.RespondWithJSON(w)
 }
 
 
 func CreateClient(w http.ResponseWriter, r *http.Request)  {
 	
-	database := db.Connect()
-	defer database.Close()
-
 	var cliente models.Cliente
     json.NewDecoder(r.Body).Decode(&cliente)
 
@@ -56,29 +53,25 @@ func CreateClient(w http.ResponseWriter, r *http.Request)  {
 
     result, err := insertar.Exec(cliente.Nombre, cliente.Email, cliente.Telefono)
     if err != nil {
-        json.NewEncoder(w).Encode(models.APIResponse{
-            Code: http.StatusInternalServerError,
-            Data: "Error al insertar cliente.",
-        })
+
+        response := models.APIResponse{Code: http.StatusInternalServerError}
+        response.RespondWithError(w, "Error al insertar cliente.")
         return
     }
 
     lastInsertId, err := result.LastInsertId()
+
     if err != nil {
-        json.NewEncoder(w).Encode(models.APIResponse{
-            Code: http.StatusInternalServerError,
-            Data: "Error al obtener el ID del cliente",
-        })
+        response := models.APIResponse{Code: http.StatusInternalServerError}
+        response.RespondWithError(w, "Error al obtener el ID del cliente")
         return
     }
 
     // Asignar el ID obtenido al cliente
     cliente.ID = int(lastInsertId)
 
-	json.NewEncoder(w).Encode(models.APIResponse{
-        Code: http.StatusOK,
-        Data: cliente,
-    })
+    response := models.APIResponse{Code: http.StatusOK, Data: cliente}
+    response.RespondWithJSON(w)
 }
 
 
@@ -88,25 +81,18 @@ func UpdateCliente(w http.ResponseWriter, r *http.Request)  {
     id, err := strconv.Atoi(params["id"])
 
     if err != nil {
-		json.NewEncoder(w).Encode(models.APIResponse{
-			Code: http.StatusBadRequest,
-			Data: "ID Invalido",
-		})
+        response := models.APIResponse{Code: http.StatusBadRequest}
+        response.RespondWithError(w, "ID Invalido")
         return
     }
-
-    database := db.Connect()
-	defer database.Close()
 
     var cliente models.Cliente
     json.NewDecoder(r.Body).Decode(&cliente)
 
 	_, err = database.Exec("UPDATE clientes SET nombre = ?, email = ?, Telefono = ? WHERE id = ?", cliente.Nombre, cliente.Email, cliente.Telefono, id)
 
-    json.NewEncoder(w).Encode(models.APIResponse{
-        Code: http.StatusOK,
-        Data: cliente,
-    })
+    response := models.APIResponse{Code: http.StatusOK, Data: cliente}
+    response.RespondWithJSON(w)
 }
 
 func GetClient(w http.ResponseWriter, r *http.Request)  {
@@ -115,15 +101,10 @@ func GetClient(w http.ResponseWriter, r *http.Request)  {
     id, err := strconv.Atoi(params["id"])
 
     if err != nil {
-		json.NewEncoder(w).Encode(models.APIResponse{
-			Code: http.StatusBadRequest,
-			Data: "ID Invalido",
-		})
+        response := models.APIResponse{Code: http.StatusBadRequest}
+        response.RespondWithError(w, "ID Invalido")
         return
     }
-
-	database := db.Connect()
-	defer database.Close()
 
     var cliente models.Cliente
     
@@ -132,18 +113,14 @@ func GetClient(w http.ResponseWriter, r *http.Request)  {
             &cliente.ID, &cliente.Nombre, &cliente.Email, &cliente.Telefono)
 
     if err != nil {
-        
-        json.NewEncoder(w).Encode(models.APIResponse{
-            Code: http.StatusInternalServerError,
-            Data: "Error al obtener el cliente",
-        })
+
+        response := models.APIResponse{Code: http.StatusInternalServerError}
+        response.RespondWithError(w, "Error al obtener el cliente")
         return
     }
 
-	json.NewEncoder(w).Encode(models.APIResponse{
-        Code: http.StatusOK,
-        Data: cliente,
-    })
+    response := models.APIResponse{Code: http.StatusOK, Data: cliente}
+    response.RespondWithJSON(w)
 }
 
 func DeleteClient(w http.ResponseWriter, r *http.Request)  {
@@ -152,28 +129,22 @@ func DeleteClient(w http.ResponseWriter, r *http.Request)  {
     id, err := strconv.Atoi(params["id"])
 
     if err != nil {
-		json.NewEncoder(w).Encode(models.APIResponse{
-			Code: http.StatusBadRequest,
-			Data: "ID Invalido",
-		})
+        response := models.APIResponse{Code: http.StatusBadRequest,}
+        response.RespondWithError(w,"ID Invalido")
         return
     }
-
-    database := db.Connect()
-	defer database.Close()
 
 	_, err = database.Exec("DELETE from clientes WHERE id = ?", id)
 
     if err != nil {
-        json.NewEncoder(w).Encode(models.APIResponse{
-            Code: http.StatusInternalServerError,
-            Data: "Error al borrar el usuario",
-        })
+        response := models.APIResponse{Code: http.StatusInternalServerError,}
+        response.RespondWithError(w,"Error al borrar el usuario")
         return
     }
 
-    json.NewEncoder(w).Encode(models.APIResponse{
+    response := models.APIResponse{
         Code: http.StatusOK,
-        Data: "Usuario borrado con exito",
-    })
+        Data: "Cliente eliminado con éxito",
+    }
+    response.RespondWithJSON(w)
 }
