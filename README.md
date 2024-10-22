@@ -80,10 +80,13 @@ Esta API permite la creación, lectura, actualización y eliminación (CRUD) de 
 
     ```json
     {
-        "id": 3,
-        "nombre": "Ruben Botta",
-        "email": "bottis@example.com",
-        "telefono": "3515655698"
+        "code": 200,
+        "data": {
+            "id": 3,
+            "nombre": "Ruben Botta",
+            "email": "bottis@example.com",
+            "telefono": "3515655698"
+        }
     }
     ```
 
