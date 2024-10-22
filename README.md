@@ -12,8 +12,8 @@ Esta API permite la creación, lectura, actualización y eliminación (CRUD) de 
 1. Clona este repositorio:
 
     ```bash
-    git clone https://github.com/usuario/proyecto-clientes.git
-    cd proyecto-clientes
+    git clone https://github.com/Alexpedrasa10/goclients.git
+    cd goclients
     ```
 
 2. Instala las dependencias necesarias:
