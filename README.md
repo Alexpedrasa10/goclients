@@ -20,7 +20,7 @@ cd goclients
 
 ### 2. Construir y ejecutar la aplicación con Docker
 
-Construir y ejecutar la aplicación con Docker
+Usa Docker Compose para construir y levantar el contenedor con la API:
 
 ```bash
 sudo docker-compose up --build
