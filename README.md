@@ -1,40 +1,43 @@
 # Clientes API
 
-Esta API permite la creación, lectura, actualización y eliminación (CRUD) de clientes. Está construida en Golang utilizando `net/http` y SQL (en este caso, con SQLite).
+Esta API permite la creación, lectura, actualización y eliminación (CRUD) de clientes. Está construida en Golang utilizando `net/http` y SQL (SQLite).
 
 ## Requisitos
 
-- Go 1.16 o superior
-- SQLite3
+- Docker
+- Docker Compose
 
-## Instalación
+## Instalación con Docker
 
-1. Clona este repositorio:
+Sigue estos pasos para ejecutar la API utilizando Docker.
 
-    ```bash
-    git clone https://github.com/Alexpedrasa10/goclients.git
-    cd goclients
-    ```
+### 1. Clona este repositorio:
 
-2. Instala las dependencias necesarias:
+```bash
+git clone https://github.com/Alexpedrasa10/goclients.git
+cd goclients
+```
 
-    ```bash
-    go mod tidy
-    ```
+### 2. Construir y ejecutar la aplicación con Docker
 
-3. Configura la base de datos:
+Construir y ejecutar la aplicación con Docker
 
-   Asegúrate de tener una base de datos SQLite lista. Puedes crear una nueva usando:
+```bash
+sudo docker-compose up --build
+```
+Este comando:
 
-    ```bash
-    sqlite3 clientes.db < schema.sql
-    ```
+- Construirá la imagen Docker con la API de clientes.
+- Mapeará el puerto 8080 del contenedor al puerto 8080 de tu máquina local.
+- Montará el archivo de la base de datos clients.db para que los datos sean persistentes.
 
-4. Ejecuta la aplicación:
+### 3. Acceder a la API
 
-    ```bash
-    go run main.go
-    ```
+Una vez construida la imagen puedes acceder a la API con la siguiente URL:
+
+```bash
+http://localhost:8080/clientes
+```
 
 ## Endpoints
 
