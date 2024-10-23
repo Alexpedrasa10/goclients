@@ -27,6 +27,6 @@ func main() {
     r.HandleFunc("/cliente/{id}", handlers.DeleteClient).Methods("DELETE")
     
 
-    log.Println("Servidor escuchando en http://localhost:8000")
-    log.Fatal(http.ListenAndServe(":8000", r))
+    log.Println("Servidor escuchando en http://localhost:8080")
+    log.Fatal(http.ListenAndServe(":8080", r))
 }
